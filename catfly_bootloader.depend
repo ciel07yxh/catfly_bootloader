@@ -1,0 +1,61 @@
+# depslib dependency file v1.0
+1533109175 source:/home/parallels/Desktop/catfly_bootloader/main.c
+	<sys/types.h>
+	<sys/stat.h>
+	<fcntl.h>
+	<termios.h>
+	<stdio.h>
+	"ymodem.h"
+	"serial_posix.h"
+	"serial.h"
+	"debug.h"
+
+1454619816 /home/parallels/Desktop/catfly_bootloader/ymodem.h
+	<stdint.h>
+
+1454619748 /home/parallels/Desktop/catfly_bootloader/serial_posix.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<termios.h>
+
+1454619852 /home/parallels/Desktop/catfly_bootloader/serial.h
+	<fcntl.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<termios.h>
+	<unistd.h>
+	<sys/ioctl.h>
+	<sys/signal.h>
+
+1454607208 /home/parallels/Desktop/catfly_bootloader/debug.h
+	<stdint.h>
+
+1454619841 source:/home/parallels/Desktop/catfly_bootloader/serial.c
+	<stdio.h>
+	"serial.h"
+	"serial_posix.h"
+
+1454619197 source:/home/parallels/Desktop/catfly_bootloader/serial_posix.c
+	<fcntl.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<termios.h>
+	<unistd.h>
+	<sys/ioctl.h>
+	<sys/signal.h>
+	"serial_posix.h"
+
+1454619802 source:/home/parallels/Desktop/catfly_bootloader/ymodem.c
+	<stdio.h>
+	<string.h>
+	<unistd.h>
+	<stdlib.h>
+	"ymodem.h"
+	"serial.h"
+	"debug.h"
+
