@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="./app_hello_moteid.bin 34 /dev/pts/22" />
+				<Option parameters="./app_hello_moteid.bin 34 /dev/ttyUSB0" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -37,10 +37,10 @@
 		</Unit>
 		<Unit filename="control.h" />
 		<Unit filename="debug.h" />
-		<Unit filename="frame_driver.c">
+		<Unit filename="frame_parse.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="frame_driver.h" />
+		<Unit filename="frame_phase.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -55,6 +55,10 @@
 		<Unit filename="test.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="usart_driver.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="usart_driver.h" />
 		<Unit filename="ymodem.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -1,12 +1,10 @@
 #include "control.h"
-
-
-
+#include <sys/time.h>
 
 long get_sys_time_ms(void)
 {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
+  struct timeval tv;
+  gettimeofday(&tv, 0);
    // printf("msecond:%ld\n",tv.tv_sec*1000+tv.tv_usec/1000);  //秒
     return tv.tv_sec*1000+tv.tv_usec/1000;
 }
@@ -24,7 +22,7 @@ void set_timer(struct zxy_control *control,long time)
         control->timeout_cout++;
         if(control->timeout_cout>max_timeout_cout && max_timeout_cout>0)
         {
-            ptr();
+            //ptr();
             control->timeout_cout=0;
         }
         return TIMER_TIMEOUT;
@@ -52,7 +50,7 @@ int is_max_time_out(struct zxy_control *control,int maxTimeOut)
 
 zxy_control __control=
 {
-HOST_SEND_COMMAND,
+0x01,
 0,
 0,
 0,

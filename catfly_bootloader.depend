@@ -1,16 +1,16 @@
 # depslib dependency file v1.0
-1533179909 source:/home/parallels/Desktop/catfly_bootloader/main.c
+1533221358 source:/home/parallels/Desktop/catfly_bootloader/main.c
 	<sys/types.h>
 	<sys/stat.h>
 	<fcntl.h>
 	<termios.h>
 	<stdio.h>
-	"ymodem.h"
 	"serial_posix.h"
 	"serial.h"
 	"debug.h"
 	"control.h"
-	"frame_driver.h"
+	"usart_driver.h"
+	"frame_phase.h"
 
 1533130639 /home/parallels/Desktop/catfly_bootloader/ymodem.h
 	<stdint.h>
@@ -32,7 +32,7 @@
 	<sys/ioctl.h>
 	<sys/signal.h>
 
-1533110984 /home/parallels/Desktop/catfly_bootloader/debug.h
+1533219883 /home/parallels/Desktop/catfly_bootloader/debug.h
 	<stdint.h>
 
 1454619841 source:/home/parallels/Desktop/catfly_bootloader/serial.c
@@ -67,19 +67,37 @@
 	<stdint.h>
 	<stdlib.h>
 
-1533122902 source:/home/parallels/Desktop/catfly_bootloader/control.c
+1533221382 source:/home/parallels/Desktop/catfly_bootloader/control.c
 	"control.h"
-
-1533177998 /home/parallels/Desktop/catfly_bootloader/control.h
 	<sys/time.h>
+
+1533220570 /home/parallels/Desktop/catfly_bootloader/control.h
 	<stdio.h>
 
 1533178481 /home/parallels/Desktop/catfly_bootloader/frame_driver.h
 	<stdint.h>
 
-1533181637 source:/home/parallels/Desktop/catfly_bootloader/frame_driver.c
+1533181838 source:/home/parallels/Desktop/catfly_bootloader/frame_driver.c
 	"frame_driver.h"
 	"serial_posix.h"
 	"serial.h"
 	"debug.h"
+
+1533219329 source:/home/parallels/Desktop/catfly_bootloader/frame_parse.c
+	"frame_phase.h"
+	<stdio.h>
+	"control.h"
+
+1533213107 /home/parallels/Desktop/catfly_bootloader/frame_phase.h
+	"usart_driver.h"
+
+1533195015 /home/parallels/Desktop/catfly_bootloader/usart_driver.h
+	<stdint.h>
+
+1533213000 source:/home/parallels/Desktop/catfly_bootloader/usart_driver.c
+	"usart_driver.h"
+	"serial_posix.h"
+	"serial.h"
+	"debug.h"
+	"frame_phase.h"
 

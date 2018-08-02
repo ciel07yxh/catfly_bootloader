@@ -1,6 +1,6 @@
 /*
-   emoteflash - Open Source ST STM32 flash program for *nix
-   Copyright (C) 2010 Ling Wang <lngsa.wang@gmail.com>
+   catflyFlash - Open Source ST STM32 flash program for *nix
+   Copyright (C) 2018 Zhang XiaoYuan  <569hmq@gmail.com>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -20,23 +20,20 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
-
-#include "ymodem.h"
 #include "serial_posix.h"
 #include "serial.h"
 #include "debug.h"
 #include "control.h"
-#include "frame_driver.h"
+#include "usart_driver.h"
+#include "frame_phase.h"
 
-#define TIMEOUT 	  10
-#define USART_SEND_FAILED   -1
+#define APP2BOOT_TIMEOUT   100
 
-
-zxy_framer *framer = &__zxy_framer;
+usart_driver *usart = &__usart_driver;
+zxy_framer *datalink = &__framer;
 /* uart interrpt function*/
 void signal_handler_IO (int status)
 {
@@ -45,22 +42,10 @@ void signal_handler_IO (int status)
     SerialGetChar(&c);
 
     printf(" %c  ",c);
-    framer->read(framer,c);
+    usart->read(usart,c);
 }
 
-static int Serial_ReceiveByte(char* c, int timeout)
-{
-    int ref = 0;
 
-    if(timeout == -1)
-        ref = 1;
-    while(timeout-- > 0 || ref)
-    {
-        if(SerialGetChar(c)== 1)
-            return 1;
-    }
-    return 0;
-}
 
 static uint32_t SerialUpload(const char* filename)
 {
@@ -101,33 +86,12 @@ static uint32_t SerialUpload(const char* filename)
         printf("read file failed...\n");
     }
 
-
-    // if (Serial_ReceiveByte(&c,-1) == 1&& c==CRC16)
-    {
-        //debug_print("%d",c);
-        printf("Uploading image %s...\n",filename);
-        status = Ymodem_Transmit((uint8_t *)buf, (const uint8_t *)filename, fileSize);
-        if (status != 0)
-        {
-            printf("Error Occured while Transmitting File!please try again!\n");
-        }
-        else
-        {
-            printf("Total %d bytes uploaded Successfully \n", fileSize);
-        }
-    }
     free(buf);
     buf =NULL;
     fclose(fp);
     return status;
 }
 
-void callback(void)
-{
-//#zxy_control *control = &__control;
-    printf("max time out");
-    //#control->change_status(control,HOST_SEND_COMMAND,0,1);
-}
 
 int main(int argc, char *argv[])
 {
@@ -138,7 +102,12 @@ int main(int argc, char *argv[])
     uint16_t moteid = 0;
     char sbuf[8];
     /*Parameters*/
+
     zxy_control *control = &__control;
+    uart_frame_t        payload;
+    frame_ack_t         frame_ackFrame;
+    frame_app2boot_t    frame_app2boot;
+    frame_file_t        frame_file;
 
     if( argc < 4)
     {
@@ -151,111 +120,79 @@ int main(int argc, char *argv[])
         imageFile = argv[1];
         moteid = atoi(argv[2]);
         device = argv[3];
-
     }
 
     /*Print version information*/
-    printf("Emoteflash stm32 flash progrmming version 1.0.0, COPYRIGHT DNC 2016.\n");
+    printf("CatFly stm32 flash progrmming version 1.0.0, COPYRIGHT ZXY 2018.\n");
     /*Init serial port*/
     if(SerialInt(device)<0)
     {
         printf("serial port init failed...\n");
         return 0;
     }
+     printf("Serial open success\n");
 
-    char *str = "AesAtasdFlfDjkalB";
-    framer->send(framer,(uint8_t *)str,strlen(str));
     while(1)
     {
         switch(control->status)
-        case HOST_SEND_COMMAND:
-    {
-            //printf("App2Boot request\n");
-            key = 0x4c; /*send to application to restart*/
-        if(0)
         {
-            printf("send byte %c faild.\n", key);
-            return -1;
-        }
-        else
-        {
-            //debug_print("sending restart command...\n ");
-        }
+        case HOST_REQUEST_REBOOT:
 
-        control->change_status(control,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
+        /*
+            ackFrame.status='Y';
+            memcpy(&frame.buf,&ackFrame,sizeof(frame_ack_t));
+            frame.payload_len = sizeof(frame_ack_t);
+            frame.type='A';
+            datalink->send(datalink,&frame);
+
+        */
+            //send reboot command
+            payload.payload_len=0;
+            payload.type=APP2BOOT;
+            datalink->send(datalink,&payload);
+            //set timer
+            control->change_status(control,HOST_WAIT_BOOTLOADER,HOST_CMD_TIMEOUT);
 
         break;
 
-        case HOST_WAIT_ACK:
+        case HOST_WAIT_BOOTLOADER:
 
-            //if(SerialGetChar(&c))
-        {
-            if(0)
+            //max time out
+            if(control->is_max_time_out(control,APP2BOOT_TIMEOUT))
             {
-                //printf("start flash\n");
-                control->change_status(control,HOST_TX_APP,100);
+                return 0;
+            }
+            //if time out change staus to last
+            if(control->check_timer(control,NULL))
+            {
+                control->change_status(control,HOST_REQUEST_REBOOT,0);
                 break;
-
             }
-            //printf("ACK not received\n");
-        }
-
-
-
-        if(control->is_max_time_out(control,300))
-        {
-            callback();
-            return 0;
-        }
-
-        if(control->check_timer(control,callback))
-        {
-            //printf("App2Boot timeout\n");
-            control->change_status(control,HOST_SEND_COMMAND,0);
-            break;
-        }
 
         break;
 
-        case HOST_TX_APP:
+        case HOST_START_TRANS:
 
-            // printf("Y-modem tx start\n");
-            printf("[Server] recive ack response from emote...\n");
-            if(SerialUpload(imageFile)==0)
-            {
-                SerialPutChar(0x4D);
-                if(Serial_ReceiveByte((char *)&recv, TIMEOUT) == 1 && recv == 0x52);
-                {
-                    sprintf(sbuf,"%d", moteid);
-                    debug_print("%s \n", sbuf);
-                    printf("[Server] sending mote id to emote....\n");
-                    while(sbuf[i] != '\0')
-                    {
-                        SerialPutChar(sbuf[i++]);
-                    }
+        break;
 
-                    while(Serial_ReceiveByte((char *)&recv, TIMEOUT) == 1 && recv !=0x16)
-                    {
-                        printf("%c", recv);
-                    }
-                    if( recv == 0x16)
-                        printf("\nEmote image update has been done successfully.\n");
-                    else
-                        printf("\nEmote image update failed.Please try again.\n");
-                }
-            }
-            SerialClose();
-            return 1;
+        case HOST_WAIT_FILE_ACK:
 
+        break;
 
-            //sleep(2);
-            return 0;
+        case HOST_SEND_MOTE_ID:
 
+        break;
 
-            break;
+        case HOST_WAIT_MOTE_ID_ACK:
+
+        break;
+
+        case HOST_FINISHED:
+
+        break;
 
         }
-
+       // SerialClose();
 
     }
 
