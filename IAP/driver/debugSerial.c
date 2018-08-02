@@ -1,5 +1,5 @@
 #include "debugSerial.h"
-
+#include "frame_driver.h"
 //¼ÓÈëÒÔÏÂ´úÂë,Ö§³Öprintfº¯Êı,¶ø²»ĞèÒªÑ¡Ôñuse MicroLIB	  
 #pragma import(__use_no_semihosting)             
 //±ê×¼¿âĞèÒªµÄÖ§³Öº¯Êı                 
@@ -79,7 +79,6 @@ void Debug_Serial_Send_Buffer(u8* buffer,u8 length)
 	{
 		Debug_Serial_Send_Char(buffer[i]);
 	}
-	printf("\r\n");
 }
 
 
@@ -93,70 +92,7 @@ u8 receiveMode = 0;//½ÓÊÕ²ÎÊıµÄÖĞ¶Ï´¦ÀíÄ£ĞÍ,Îª0µÄÊ±ºòÊÇÃüÁîÄ£Ê½,Îª1µÄÊ±ºòÎªÏÂÔØÄ
 u8 receiveExpectCount = 0;//´®¿ÚÆÚÍû½ÓÊÕ³¤¶È
 
 
-//´®¿ÚÖĞ¶Ï´¦Àí
-static void SerialRecv(u8 ch)
-{
-	if(receiveMode == 0)
-	{
-		if((serial_Buffer_Length&0x8000) == 0x8000)//ÒÑ¾­½ÓÊÕÍê³É,ÏµÍ³»¹Ã»´¦Àí
-		{
-			serial_Buffer_Length |= 0x8000;//ÍË³ö
-		}
-		else if((serial_Buffer_Length&0x4000) == 0x4000)//½ÓÊÕµ½»Ø³µ»¹Ã»½ÓÊÕµ½»»ĞĞ
-		{
-			if(ch == '\n')serial_Buffer_Length |= 0x8000;
-			else 
-			{
-				//Ò»Ö¡½ÓÊÜÊ§°Ü
-				serial_Buffer_Length = 0;
-			}
-		}
-		else
-		{
-			if((serial_Buffer_Length&0xff) < SERIAL_MAX_LENGTH)
-			{
-				if(ch == '\r')serial_Buffer_Length |= 0x4000;
-				else 
-				{
-					serial_Buffer[(serial_Buffer_Length&0xff)] = ch;
-					serial_Buffer_Length++;
-				}
-			}
-			else
-			{
-				//Ò»Ö¡½ÓÊÜÊ§°Ü
-				serial_Buffer_Length = 0;
-			}
-		}
-	}
-	else
-	{
-		//ÏÂÔØÄ£Ê½,Ö»¿ØÖÆ×Ö·û´®µÄÁ¿,Êı¾İµÄµÚÒ»Î»ÊÇ¸ÃÊı¾İ°üµÄ³¤¶È,½ÓÊÕµ½ÕâÃ´¶à³¤¶È,½ÓÊÕÍê³ÉÎ»ÖÃÒ»
-		//×¢Òâ,ÔÚÕâÖÖÄ£Ê½ÏÂ,Çå³ıserial_Buffer_LengthÖ®Ç°Ó¦µ±Çå³ıreceiveExpectCountµÄÖµ
-		if(receiveExpectCount == 0)//ÆÚÍûÏÂÔØÎª0,µÚÒ»¸öÊı¾ÍÊÇÆÚÍûÏÂÔØÊı
-		{
-			receiveExpectCount = ch;
-		}
-		else
-		{
-			if((serial_Buffer_Length&0x8000) == 0x8000)//ÒÑ¾­½ÓÊÕÍê³É,ÏµÍ³»¹Ã»´¦Àí,´ËÊ±²»½ÓÊÕÊı¾İ
-			{
-				serial_Buffer_Length |= 0x8000;//ÍË³ö
-			}
-			else
-			{
-				serial_Buffer[(serial_Buffer_Length&0xff)] = ch;//½ÓÊÕÊı¾İ²¢±£´æ
-				serial_Buffer_Length++;
-				if((serial_Buffer_Length&0xff) == receiveExpectCount)//½ÓÊÕµ½ÁËÆÚÍû³¤¶ÈµÄÊı¾İ
-				{
-					serial_Buffer_Length |= 0x8000;//Ò»°ü½ÓÊÕÍê³É±êÖ¾
-				}
-			}
-		}
-		
-	}
-}
-
+zxy_framer *framer = &__zxy_framer;
 
 void USART1_IRQHandler(void)
 {
@@ -165,8 +101,8 @@ void USART1_IRQHandler(void)
 	{
 		ch = (u8)USART_ReceiveData(USART1);
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);	//Çå³ıÖĞ¶Ï
-//		Debug_Serial_Send_Char(ch);				//½«ÊÕµ½µÄÊı¾İ·¢ËÍ³öÈ¥
-		SerialRecv(ch);							//´¦ÀíÖĞ¶ÏÊı¾İ
+		Debug_Serial_Send_Char(ch);				//½«ÊÕµ½µÄÊı¾İ·¢ËÍ³öÈ¥
+		framer->input(framer,ch);
 	}
 }
 
