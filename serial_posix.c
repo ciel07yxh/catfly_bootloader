@@ -63,14 +63,14 @@ int serial_setup(serial_t *h,speed_t port_baud,tcflag_t port_bits,tcflag_t port_
 {
 
 	struct termios settings;
-	cfmakeraw(&h->newtio);	
+	cfmakeraw(&h->newtio);
 	h->newtio.c_iflag &=~(IXON | IXOFF | IXANY);
 	h->newtio.c_iflag &=~(INLCR | IGNCR | ICRNL);
 
 	h->newtio.c_cflag &= ~PARENB;
 	h->newtio.c_cflag &= ~CSTOPB;
 	h->newtio.c_cflag &= ~CSIZE;
-	h->newtio.c_cflag &= ~HUPCL; 
+	h->newtio.c_cflag &= ~HUPCL;
 	h->newtio.c_oflag &= ~OPOST;
 
 	h->newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
@@ -86,6 +86,7 @@ int serial_setup(serial_t *h,speed_t port_baud,tcflag_t port_bits,tcflag_t port_
 
 	/* set the settings */
 	serial_flush(h);
+	serial_it_config(h);
 	if (tcsetattr(h->fd, TCSANOW, &h->newtio) != 0)
 		return -1;
 
@@ -101,7 +102,7 @@ int serial_setup(serial_t *h,speed_t port_baud,tcflag_t port_bits,tcflag_t port_
 }
 
 void serial_it_config(serial_t *h){
-	struct sigaction saio;  
+	struct sigaction saio;
 	//install the serial handler before making the device asynchronous
 	saio.sa_handler = signal_handler_IO;
 	sigemptyset(&saio.sa_mask);   //saio.sa_mask = 0;
@@ -119,7 +120,7 @@ void serial_it_config(serial_t *h){
 int serial_read(const serial_t *h, void *buf,size_t nbyte)
 {
 	ssize_t r;
-	uint8_t *pos = (uint8_t *)buf;
+    uint8_t *pos = (uint8_t *)buf;
 	int cnt = 0;
 
 	if (h == NULL)
