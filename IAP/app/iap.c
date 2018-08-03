@@ -1,6 +1,6 @@
 #include "iap.h"
 
-#define FLASH_APP1_ADDR		0x08002000  	//第一个应用程序起始地址(存放在FLASH)
+#define FLASH_APP1_ADDR		0x08006000  	//第一个应用程序起始地址(存放在FLASH)
 											//保留的空间为IAP使用
 
 u16 iapbuf[1024] = {0}; //用于缓存数据的数组
