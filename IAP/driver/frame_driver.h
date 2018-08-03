@@ -2,12 +2,12 @@
 #define FRAME_DRIVER_H_INCLUDED
 
 #define FRAME_BUFF_LEN 2048
-
+#include <stdint.h>
 //data link layer
 #define SSOH 'A'
 #define SEOT 'B'
 #define SESC 'C'
-#include <stdint.h>
+
 //frame
 
 //#define ACK  0x06

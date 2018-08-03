@@ -138,7 +138,7 @@
           <Target>
             <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>0</RunToMain>
+            <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
             <RestoreWatchpoints>1</RestoreWatchpoints>
             <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
@@ -176,7 +176,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -447,6 +447,11 @@
               <FilePath>..\fwlib\src\misc.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f10x_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fwlib\src\stm32f10x_gpio.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f10x_bkp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\fwlib\src\stm32f10x_bkp.c</FilePath>
@@ -455,11 +460,6 @@
               <FileName>stm32f10x_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\fwlib\src\stm32f10x_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f10x_gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\fwlib\src\stm32f10x_gpio.c</FilePath>
             </File>
             <File>
               <FileName>stm32f10x_pwr.c</FileName>
@@ -500,6 +500,16 @@
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\usart_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>frame_parse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\frame_parse.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -552,11 +562,6 @@
               <FilePath>..\app\command\CommandCore.c</FilePath>
             </File>
             <File>
-              <FileName>commandFunc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\app\command\commandFunc.c</FilePath>
-            </File>
-            <File>
               <FileName>commandList.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\app\command\commandList.c</FilePath>
@@ -567,14 +572,9 @@
               <FilePath>..\app\command\commandUtil.c</FilePath>
             </File>
             <File>
-              <FileName>commandConfig.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\app\command\commandConfig.h</FilePath>
-            </File>
-            <File>
-              <FileName>commandInclude.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\app\command\commandInclude.h</FilePath>
+              <FileName>commandFunc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\command\commandFunc.c</FilePath>
             </File>
           </Files>
         </Group>

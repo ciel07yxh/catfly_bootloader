@@ -29,7 +29,7 @@ void Debug_Serial_Init(u32 baud);
 void Debug_Serial_Send_Char(u8 val);
 
 void Debug_Serial_Send_Buffer(u8* buffer,u8 length);
-
+uint32_t SerialGetChar(uint8_t *key);
 
 
 #endif

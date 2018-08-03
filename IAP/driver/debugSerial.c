@@ -1,5 +1,5 @@
 #include "debugSerial.h"
-#include "frame_driver.h"
+#include "usart_driver.h"
 //¼ÓÈëÒÔÏÂ´úÂë,Ö§³Öprintfº¯Êı,¶ø²»ĞèÒªÑ¡Ôñuse MicroLIB	  
 #pragma import(__use_no_semihosting)             
 //±ê×¼¿âĞèÒªµÄÖ§³Öº¯Êı                 
@@ -64,6 +64,20 @@ void Debug_Serial_Init(u32 baud)
 	USART_GetFlagStatus(USART1, USART_FLAG_TC);
 }
 
+uint32_t SerialGetChar(uint8_t *key)
+{
+  if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+  {
+    *key = (uint8_t)USART1->DR;
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+  
+}
+
 void Debug_Serial_Send_Char(u8 val)
 {
 	/* ÏòÏàÓ¦´®¿Ú·¢ËÍÊı¾İ*/
@@ -92,17 +106,18 @@ u8 receiveMode = 0;//½ÓÊÕ²ÎÊıµÄÖĞ¶Ï´¦ÀíÄ£ĞÍ,Îª0µÄÊ±ºòÊÇÃüÁîÄ£Ê½,Îª1µÄÊ±ºòÎªÏÂÔØÄ
 u8 receiveExpectCount = 0;//´®¿ÚÆÚÍû½ÓÊÕ³¤¶È
 
 
-zxy_framer *framer = &__zxy_framer;
+usart_driver *usasrt_driver = &__usart_driver;
 
 void USART1_IRQHandler(void)
 {
+	
 	u8 ch = 0;
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)//¼ì²éÖĞ¶Ï·¢Éú
 	{
 		ch = (u8)USART_ReceiveData(USART1);
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);	//Çå³ıÖĞ¶Ï
-		Debug_Serial_Send_Char(ch);				//½«ÊÕµ½µÄÊı¾İ·¢ËÍ³öÈ¥
-		framer->input(framer,ch);
+		//Debug_Serial_Send_Char(ch);				//½«ÊÕµ½µÄÊı¾İ·¢ËÍ³öÈ¥
+	  usasrt_driver->input(usasrt_driver,ch);
 	}
 }
 
