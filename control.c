@@ -15,14 +15,13 @@ void set_timer(struct zxy_control *control,long time)
 
 }
 
- int  check_timer(struct zxy_control *control,int max_timeout_cout,void (* ptr)())
+ int  check_timer(struct zxy_control *control,int max_timeout_cout)
  {
     if(get_sys_time_ms() > control->timer)
     {
         control->timeout_cout++;
         if(control->timeout_cout>max_timeout_cout && max_timeout_cout>0)
         {
-            //ptr();
             control->timeout_cout=0;
         }
         return TIMER_TIMEOUT;
@@ -31,10 +30,12 @@ void set_timer(struct zxy_control *control,long time)
         return 0;
  }
 
- void change_status(struct zxy_control *control,int sta,long time)
+ void change_status(struct zxy_control *control,int current,int next,long time)
  {
-        control->status = sta;
+        control->status = next;
         control->set_timer(control,time);
+        control->last_status = current;
+        control->last_timeout = time;
 
  }
 
@@ -47,6 +48,10 @@ int is_max_time_out(struct zxy_control *control,int maxTimeOut)
 
 }
 
+void resume_last_mission(struct zxy_control *control)
+{
+    change_status(control,control->last_status,control->last_status,control->last_timeout);
+}
 
 zxy_control __control=
 {
@@ -54,9 +59,11 @@ zxy_control __control=
 0,
 0,
 0,
+0,
 set_timer,
 check_timer,
 change_status,
-is_max_time_out
+is_max_time_out,
+resume_last_mission
 };
 

@@ -29,85 +29,32 @@
 #include "control.h"
 #include "usart_driver.h"
 #include "frame_phase.h"
-
+#include "file.h"
 #define APP2BOOT_TIMEOUT   100
 
 usart_driver *usart = &__usart_driver;
 zxy_framer *datalink = &__framer;
+file_ops *fops =&__file_ops;
+  char c;
 /* uart interrpt function*/
 void signal_handler_IO (int status)
 {
 
-    char c;
-    SerialGetChar(&c);
-
-    printf(" %c  ",c);
-    usart->read(usart,c);
 }
 
-
-
-static uint32_t SerialUpload(const char* filename)
-{
-    uint32_t status = 0;
-    FILE* fp;
-    int32_t fileSize;
-    char* buf;
-
-    debug_print("Enter function: SerialUpload...\n");
-    if(filename == NULL)
-    {
-        printf("no image file.\n");
-        return -1;
-    }
-
-    fp = fopen(filename,"r");
-    if(fp<0)
-    {
-        printf("open the image file failed...\n");
-        return -1;
-    }
-
-    /*get file size*/
-    fseek(fp, 0, SEEK_END);
-    fileSize = ftell(fp);
-    fseek(fp,0,SEEK_SET);
-
-    /*read file into buffer*/
-    buf = malloc(fileSize);
-    if(buf == NULL)
-    {
-        printf("malloc buffer failed...\n");
-        return -1;
-    }
-
-    if(fread(buf,1,fileSize,fp) != fileSize)
-    {
-        printf("read file failed...\n");
-    }
-
-    free(buf);
-    buf =NULL;
-    fclose(fp);
-    return status;
-}
 
 
 int main(int argc, char *argv[])
 {
-    int8_t key;
-    int8_t recv;
     char *device, *imageFile;
-    uint32_t i = 0;
     uint16_t moteid = 0;
-    char sbuf[8];
     /*Parameters*/
-
     zxy_control *control = &__control;
     uart_frame_t        payload;
-    frame_ack_t         frame_ackFrame;
-    frame_app2boot_t    frame_app2boot;
+    uart_frame_t        file_payload;
+    //frame_app2boot_t    frame_app2boot;
     frame_file_t        frame_file;
+    frame_moteid_t      frame_moteid;
 
     if( argc < 4)
     {
@@ -132,67 +79,90 @@ int main(int argc, char *argv[])
     }
      printf("Serial open success\n");
 
+    fops->open(fops,imageFile);
+
     while(1)
     {
         switch(control->status)
         {
         case HOST_REQUEST_REBOOT:
 
-        /*
-            ackFrame.status='Y';
-            memcpy(&frame.buf,&ackFrame,sizeof(frame_ack_t));
-            frame.payload_len = sizeof(frame_ack_t);
-            frame.type='A';
-            datalink->send(datalink,&frame);
-
-        */
             //send reboot command
             payload.payload_len=0;
             payload.type=APP2BOOT;
             datalink->send(datalink,&payload);
             //set timer
-            control->change_status(control,HOST_WAIT_BOOTLOADER,HOST_CMD_TIMEOUT);
+            printf("requset downding\n");
+            control->change_status(control,HOST_REQUEST_REBOOT,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
 
         break;
 
-        case HOST_WAIT_BOOTLOADER:
+        case HOST_PREPARE_BIN:
+
+            file_payload.payload_len=fops->create(fops,&frame_file);
+            if(file_payload.payload_len){
+                printf("prepare downding\n");
+                payload.type = FILE_FRAME;
+                memcpy(payload.buf,&frame_file,file_payload.payload_len);
+                control->change_status(control,HOST_PREPARE_BIN,HOST_DOWNLOAD_BIN,HOST_CMD_TIMEOUT);
+            }
+            else
+            {
+                printf("bin file transmit finished \n");
+                control->change_status(control,HOST_PREPARE_BIN,HOST_SEND_MOTE_ID,HOST_CMD_TIMEOUT);
+            }
+
+
+        break;
+
+        case HOST_DOWNLOAD_BIN:
+            printf("start downding\n");
+            datalink->send(datalink,&file_payload);
+            control->change_status(control,HOST_DOWNLOAD_BIN,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
+        break;
+
+
+        case HOST_SEND_MOTE_ID:
+            printf("send mote id \n");
+            payload.type = MOTEID_FRAME;
+            payload.payload_len = sizeof(frame_moteid);
+            frame_moteid.moteid = moteid;
+            memcpy(payload.buf,&frame_moteid,payload.payload_len);
+            datalink->send(datalink,&payload);
+
+            control->change_status(control,HOST_SEND_MOTE_ID,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
+
+        break;
+
+
+        case HOST_FINISHED:
+            printf("mote flash succeess \n");
+            SerialClose();
+            fops->close(fops);
+            return 0;
+        break;
+
+        case HOST_WAIT_ACK:
 
             //max time out
             if(control->is_max_time_out(control,APP2BOOT_TIMEOUT))
             {
+                SerialClose();
                 return 0;
             }
             //if time out change staus to last
-            if(control->check_timer(control,NULL))
+            if(control->check_timer(control))
             {
-                control->change_status(control,HOST_REQUEST_REBOOT,0);
+                control->resume_last_mission(control);
                 break;
             }
 
         break;
 
-        case HOST_START_TRANS:
-
-        break;
-
-        case HOST_WAIT_FILE_ACK:
-
-        break;
-
-        case HOST_SEND_MOTE_ID:
-
-        break;
-
-        case HOST_WAIT_MOTE_ID_ACK:
-
-        break;
-
-        case HOST_FINISHED:
-
-        break;
-
         }
-       // SerialClose();
+       // serial reciver process
+        if(SerialGetChar(&c))
+            usart->read(usart,c);
 
     }
 

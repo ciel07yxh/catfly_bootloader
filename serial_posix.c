@@ -86,7 +86,7 @@ int serial_setup(serial_t *h,speed_t port_baud,tcflag_t port_bits,tcflag_t port_
 
 	/* set the settings */
 	serial_flush(h);
-	serial_it_config(h);
+	//serial_it_config(h);
 	if (tcsetattr(h->fd, TCSANOW, &h->newtio) != 0)
 		return -1;
 

@@ -4,13 +4,14 @@
 #define TIMER_TIMEOUT 1
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define HOST_REQUEST_REBOOT        0x01
-#define HOST_WAIT_BOOTLOADER       0x02
-#define HOST_START_TRANS           0x03
-#define HOST_WAIT_FILE_ACK         0x04
-#define HOST_SEND_MOTE_ID          0x05
-#define HOST_WAIT_MOTE_ID_ACK      0x06
+#define HOST_PREPARE_BIN           0x04
+#define HOST_DOWNLOAD_BIN          0x02
+#define HOST_SEND_MOTE_ID          0x03
+
+#define HOST_WAIT_ACK              0x05
 
 
 #define HOST_FINISHED              0x80
@@ -21,14 +22,16 @@
 #define HOST_CMD_TIMEOUT            1000  //100ms
 typedef struct zxy_control
 {
-    int status;
-    long timer;
-    long last_timeout;
-    int  timeout_cout;
+    uint8_t  status;
+    long     timer;
+    uint8_t  last_status;
+    long     last_timeout;
+    uint8_t   timeout_cout;
     void (*set_timer)(struct zxy_control *control,long time);
-    int  (*check_timer)(struct zxy_control *control,void (* ptr)());
-    void (*change_status)(struct zxy_control *control,int sta,long time);
+    int  (*check_timer)(struct zxy_control *control);
+    void (*change_status)(struct zxy_control *control,int current,int next,long time);
     int  (*is_max_time_out)(struct zxy_control *control,int maxTimeOut);
+    void (*resume_last_mission)(struct zxy_control *control);
 
 }zxy_control;
 

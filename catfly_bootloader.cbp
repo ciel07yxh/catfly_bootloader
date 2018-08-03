@@ -37,6 +37,10 @@
 		</Unit>
 		<Unit filename="control.h" />
 		<Unit filename="debug.h" />
+		<Unit filename="file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file.h" />
 		<Unit filename="frame_parse.c">
 			<Option compilerVar="CC" />
 		</Unit>

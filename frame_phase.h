@@ -7,13 +7,15 @@
 #define MAX_FILE_LEN    128
 
 
-#define ACK_FRAME    0x05
-#define FILE_FRAME  'F'
-#define APP2BOOT    (0x4c)
+#define ACK_FRAME       (0x02)
+#define FILE_FRAME      (0x03)
+#define MOTEID_FRAME    (0x04)
+#define APP2BOOT        (0x4c)
+
 
 #define SUCCESS     0x80
 #define FAILED      0x00
-
+//01 02 02 07 4c 80 05
 //app frame
 typedef struct {
   uint8_t command;                      /**< Sequence number */
@@ -21,13 +23,14 @@ typedef struct {
 }frame_ack_t;
 
 typedef struct {
-  uint8_t length;                      /**< Sequence number */
-  uint8_t buf[MAX_FILE_LEN];
+  uint16_t  Sequence;
+  uint16_t  length;                      /**< Sequence number */
+  uint8_t   buf[MAX_FILE_LEN];
 }frame_file_t;
 
 typedef struct {
-  uint8_t seq;                      /**< Sequence number */
-}frame_app2boot_t;
+  uint16_t moteid;                      /**< Sequence number */
+}frame_moteid_t;
 //play load
 typedef struct {
   uint8_t type;
@@ -35,6 +38,8 @@ typedef struct {
   uint8_t payload_len;
   uint8_t buf[MAX_MTU_LEN];
 }uart_frame_t;
+
+
 
 typedef struct zxy_framer{
 uint8_t seq;

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1533221358 source:/home/parallels/Desktop/catfly_bootloader/main.c
+1533278432 source:/home/parallels/Desktop/catfly_bootloader/main.c
 	<sys/types.h>
 	<sys/stat.h>
 	<fcntl.h>
@@ -11,6 +11,7 @@
 	"control.h"
 	"usart_driver.h"
 	"frame_phase.h"
+	"file.h"
 
 1533130639 /home/parallels/Desktop/catfly_bootloader/ymodem.h
 	<stdint.h>
@@ -40,7 +41,7 @@
 	"serial.h"
 	"serial_posix.h"
 
-1533177998 source:/home/parallels/Desktop/catfly_bootloader/serial_posix.c
+1533223593 source:/home/parallels/Desktop/catfly_bootloader/serial_posix.c
 	<fcntl.h>
 	<stdint.h>
 	<stdio.h>
@@ -67,12 +68,13 @@
 	<stdint.h>
 	<stdlib.h>
 
-1533221382 source:/home/parallels/Desktop/catfly_bootloader/control.c
+1533275705 source:/home/parallels/Desktop/catfly_bootloader/control.c
 	"control.h"
 	<sys/time.h>
 
-1533220570 /home/parallels/Desktop/catfly_bootloader/control.h
+1533275684 /home/parallels/Desktop/catfly_bootloader/control.h
 	<stdio.h>
+	<stdint.h>
 
 1533178481 /home/parallels/Desktop/catfly_bootloader/frame_driver.h
 	<stdint.h>
@@ -83,21 +85,32 @@
 	"serial.h"
 	"debug.h"
 
-1533219329 source:/home/parallels/Desktop/catfly_bootloader/frame_parse.c
+1533278954 source:/home/parallels/Desktop/catfly_bootloader/frame_parse.c
 	"frame_phase.h"
 	<stdio.h>
 	"control.h"
 
-1533213107 /home/parallels/Desktop/catfly_bootloader/frame_phase.h
+1533278165 /home/parallels/Desktop/catfly_bootloader/frame_phase.h
 	"usart_driver.h"
 
-1533195015 /home/parallels/Desktop/catfly_bootloader/usart_driver.h
+1533221989 /home/parallels/Desktop/catfly_bootloader/usart_driver.h
 	<stdint.h>
 
-1533213000 source:/home/parallels/Desktop/catfly_bootloader/usart_driver.c
+1533261957 source:/home/parallels/Desktop/catfly_bootloader/usart_driver.c
 	"usart_driver.h"
 	"serial_posix.h"
 	"serial.h"
 	"debug.h"
+	"frame_phase.h"
+	<stdio.h>
+
+1533277195 source:/home/parallels/Desktop/catfly_bootloader/file.c
+	"file.h"
+	<string.h>
+
+1533276263 /home/parallels/Desktop/catfly_bootloader/file.h
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
 	"frame_phase.h"
 

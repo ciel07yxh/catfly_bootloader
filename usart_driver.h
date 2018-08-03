@@ -4,9 +4,9 @@
 #define FRAME_BUFF_LEN 2048
 
 //data link layer
-#define SSOH 'A'
-#define SEOT 'B'
-#define SESC 'C'
+#define SSOH  0x01
+#define SEOT  0x05
+#define SESC  0x1b
 #include <stdint.h>
 //frame
 

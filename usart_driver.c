@@ -3,6 +3,7 @@
 #include "serial.h"
 #include "debug.h"
 #include "frame_phase.h"
+#include <stdio.h>
 
 int16_t calculateCRC(unsigned char *_regs,unsigned char arraySize)
 {
@@ -29,11 +30,11 @@ int16_t calculateCRC(unsigned char *_regs,unsigned char arraySize)
 
 static int isCrcVailed(unsigned char *_regs,unsigned char arraySize)
 {
-    int16_t crc_rec = *(_regs+arraySize-2)<<8 + *(_regs+arraySize-1);
+    int16_t crc_rec = (*(_regs+arraySize-1)<<8) + (*(_regs+arraySize-2));
 
     int16_t crc_calc = calculateCRC(_regs,arraySize-2);
 
-    printf("crc_rec is %x ,calc is %x",crc_rec,crc_calc);
+    //printf("crc_rec is %x ,calc is %x \n",crc_rec,crc_calc);
 
     if(crc_rec == crc_calc)
     {
@@ -55,7 +56,7 @@ void send(struct usart_driver *framer,uint8_t *data,int len)
     //
     int16_t crc16 = calculateCRC(data,len);
     uint8_t buf[len+sizeof(crc16)];
-    printf("crc is %d \n",crc16);
+    //printf("crc is %x \n",crc16);
     fflush(stdout);
     memcpy(buf,data,len);
     memcpy(buf+len,&crc16,sizeof(crc16));
@@ -107,19 +108,24 @@ void usartread(struct usart_driver *driver,uint8_t byte)
         driver->recSucess = 1;
         driver->escflag =0;
         //calc CRC
+
         if(isCrcVailed(driver->rec_buf,driver->receiveLen))
         {
+            for(int i=0;i<driver->receiveLen;i++)
+            printf(" %2x ",*(driver->rec_buf+i));
             framer_driver->input(framer_driver,driver->rec_buf,driver->receiveLen-2);
+            printf("CRC  vaild\n");
         }
         else
         {
-            printf("CRC not vaild");
+            for(int i=0;i<driver->receiveLen;i++)
+                printf(" %x ",*(driver->rec_buf+i));
+            //printf("CRC not vaild\n");
         }
         //debug_print("recSucess %d\n",driver->receiveLen);
 
-       // for(int i=0;i<driver->receiveLen;i++)
-         //   debug_print("%c",*(driver->rec_buf+i));
 
+            fflush(stdin);
         return;
     }
 
@@ -127,12 +133,12 @@ void usartread(struct usart_driver *driver,uint8_t byte)
     {
         *(driver->rec_buf+driver->receiveLen++) = byte;
         driver->escflag = 0;
-        debug_print("rec  esc data\n");
+        printf("rec  esc data\n");
         return;
     }
 
     *(driver->rec_buf+driver->receiveLen++) = byte;
-    debug_print("rec  data\n");
+        printf("rec  data\n");
     return;
 
 }
