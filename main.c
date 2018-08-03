@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
             file_payload.payload_len=fops->create(fops,&frame_file);
             if(file_payload.payload_len){
                 printf("prepare downding\n");
-                payload.type = FILE_FRAME;
+                file_payload.type = FILE_FRAME;
                 memcpy(payload.buf,&frame_file,file_payload.payload_len);
                 control->change_status(control,HOST_PREPARE_BIN,HOST_DOWNLOAD_BIN,HOST_CMD_TIMEOUT);
             }
@@ -143,7 +143,8 @@ int main(int argc, char *argv[])
         break;
 
         case HOST_WAIT_ACK:
-
+            if(SerialGetChar(&c))
+                usart->read(usart,c);
             //max time out
             if(control->is_max_time_out(control,APP2BOOT_TIMEOUT))
             {
@@ -161,8 +162,7 @@ int main(int argc, char *argv[])
 
         }
        // serial reciver process
-        if(SerialGetChar(&c))
-            usart->read(usart,c);
+
 
     }
 
