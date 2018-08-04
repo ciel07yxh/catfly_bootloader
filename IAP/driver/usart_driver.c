@@ -134,8 +134,8 @@ void usartread(struct usart_driver *driver,uint8_t byte)
     return;
 
 }
-    uint8_t buf[FRAME_BUFF_LEN];
-    uint8_t rec_buf[FRAME_BUFF_LEN];
+uint8_t buf[FRAME_BUFF_LEN];
+uint8_t rec_buf[FRAME_BUFF_LEN];
 
 usart_driver __usart_driver=
 {
