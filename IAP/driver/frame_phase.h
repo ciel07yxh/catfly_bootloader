@@ -49,6 +49,7 @@ void (*send)(struct zxy_framer *phaser,uart_frame_t *frame);
 void (*input)(struct zxy_framer *phaser,uint8_t *buf,uint8_t len);
 
 }zxy_framer;
-
+extern uint8_t  ack;
 extern zxy_framer __framer;
+extern uint8_t flash_ok;
 #endif // FRAME_PHASE_H_INCLUDED

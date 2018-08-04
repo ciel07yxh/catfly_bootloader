@@ -116,7 +116,7 @@ void USART1_IRQHandler(void)
 	{
 		ch = (u8)USART_ReceiveData(USART1);
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);	//清除中断
-		//Debug_Serial_Send_Char(ch);				//将收到的数据发送出去
+		//Debug_Serial_Send_Char(ch);				//将收到的数据发送出去fghjkl;'
 	  usasrt_driver->input(usasrt_driver,ch);
 	}
 }

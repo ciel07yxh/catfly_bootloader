@@ -96,9 +96,10 @@ void JumpToApplication(uint32_t Addr)
     /* Jump to user application */
     JumpAddress = *(__IO uint32_t*) (Addr + 4);
     Jump_To_Application = (pFunction) JumpAddress;
-    //__set_PRIMASK(1);//关闭所有中断
+
     /* Initialize user application's Stack Pointer */
     __set_MSP(*(__IO uint32_t*)Addr);
+		__set_PRIMASK(0);//关闭所有中断
     Jump_To_Application();
   }
 }
