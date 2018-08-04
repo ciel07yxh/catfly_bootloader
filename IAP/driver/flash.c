@@ -1,6 +1,118 @@
 #include "flash.h"
 
 
+
+/* Base address of the Flash sectors */
+#if defined (STM32F10X_MD) || defined (STM32F10X_MD_VL)
+ #define PAGE_SIZE                         (0x400)    /* 1 Kbyte */
+ #define FLASH_SIZE                        (0x20000)  /* 128 KBytes */
+#elif defined STM32F10X_CL
+ #define PAGE_SIZE                         (0x800)    /* 2 Kbytes */
+ #define FLASH_SIZE                        (0x40000)  /* 256 KBytes */
+#elif defined STM32F10X_HD
+ #define PAGE_SIZE                         (0x800)    /* 2 Kbytes */
+ #define FLASH_SIZE                        (0x80000)  /* 512 KBytes */
+#elif defined STM32F10X_XL
+ #define PAGE_SIZE                         (0x800)    /* 2 Kbytes */
+ #define FLASH_SIZE                        (0x100000) /* 1 MByte */
+#else 
+ #error "Please select first the STM32 device to be used (in stm32f10x.h)"    
+#endif  
+
+
+
+
+
+/**
+  * @brief  将数据烧写到指定地址的Flash中 。
+  * @param  Address Flash起始地址。
+  * @param  Data 数据存储区起始地址。
+  * @param  DataNum 数据字节数。
+  * @retval 数据烧写状态。
+  */
+FLASH_Status BOOT_ProgramDatatoFlash(uint32_t StartAddress,uint8_t *pData,uint32_t DataNum) 
+{
+  FLASH_Status FLASHStatus = FLASH_COMPLETE;
+
+  uint32_t i;
+
+  if(StartAddress<APP_EXE_FLAG_START_ADDR){
+    return FLASH_ERROR_PG;
+  }
+   /* Clear All pending flags */
+  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
+
+  for(i=0;i<(DataNum>>2);i++)
+  {
+    FLASHStatus = FLASH_ProgramWord(StartAddress, *((uint32_t*)pData));
+    if (FLASHStatus == FLASH_COMPLETE){
+      StartAddress += 4;
+      pData += 4;
+    }else{ 
+      return FLASHStatus;
+    }
+  }
+  return	FLASHStatus;
+}
+/**
+  * @brief  擦出指定扇区区间的Flash数据 。
+  * @param  StartPage 起始扇区地址
+  * @param  EndPage 结束扇区地址
+  * @retval 扇区擦出状态  
+  */
+FLASH_Status BOOT_ErasePage(uint32_t StartPageAddr,uint32_t EndPageAddr)
+{
+  uint32_t i;
+  FLASH_Status FLASHStatus=FLASH_COMPLETE;
+
+  FLASH_Unlock();
+  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
+
+  for(i=StartPageAddr;i<=EndPageAddr;i+=PAGE_SIZE){
+    FLASHStatus = FLASH_ErasePage(i);
+    if(FLASHStatus!=FLASH_COMPLETE){
+      FLASH_Lock();
+      return	FLASHStatus;	
+    }
+  }
+  FLASH_Lock();
+  return FLASHStatus;
+}
+
+
+typedef  void (*pFunction)(void);
+/**
+  * @brief  控制程序跳转到指定位置开始执行 。
+  * @param  Addr 程序执行地址。
+  * @retval 程序跳转状态。
+  */
+void JumpToApplication(uint32_t Addr)
+{
+  static pFunction Jump_To_Application;
+  __IO uint32_t JumpAddress; 
+  /* Test if user code is programmed starting from address "ApplicationAddress" */
+  if (((*(__IO uint32_t*)Addr) & 0x2FFE0000 ) == 0x20000000)
+  { 
+    /* Jump to user application */
+    JumpAddress = *(__IO uint32_t*) (Addr + 4);
+    Jump_To_Application = (pFunction) JumpAddress;
+
+    /* Initialize user application's Stack Pointer */
+    __set_MSP(*(__IO uint32_t*)Addr);
+		__set_PRIMASK(0);//关闭所有中断
+    Jump_To_Application();
+  }
+}
+
+
+
+
+
+
+
+
+
+
 //读取指定地址的半字(16位数据)
 //faddr:读地址(此地址必须为2的倍数!!)
 //返回值:对应数据.

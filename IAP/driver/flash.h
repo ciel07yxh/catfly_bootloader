@@ -10,7 +10,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //FLASHÆðÊ¼µØÖ·
-#define STM32_FLASH_BASE 0x08000000 	//STM32 FLASHµÄÆðÊ¼µØÖ·
+#define STM32_FLASH_BASE 	0x08000000 	//STM32 FLASHµÄÆðÊ¼µØÖ
+#define APP_ADDR					0x08006000
+#define MOIEID_ADDR				0x08005000
+#define APP2BOOT_ADDR			0x08004000
+#define APP_EXE_FLAG_START_ADDR APP_ADDR
 //FLASH½âËø¼üÖµ
 //#define RDP_Key                  ((uint16_t)0x00A5)
 //#define FLASH_KEY1               ((uint32_t)0x45670123)
@@ -22,7 +26,9 @@ void STMFLASH_WriteLenByte(u32 WriteAddr,u32 DataToWrite,u16 Len);	//Ö¸¶¨µØÖ·¿ªÊ
 u32 STMFLASH_ReadLenByte(u32 ReadAddr,u16 Len);				//Ö¸¶¨µØÖ·¿ªÊ¼¶ÁÈ¡Ö¸¶¨³¤¶ÈÊý¾Ý
 void STMFLASH_Write(u32 WriteAddr,u16 *pBuffer,u16 NumToWrite);		//´ÓÖ¸¶¨µØÖ·¿ªÊ¼Ð´ÈëÖ¸¶¨³¤¶ÈµÄÊý¾Ý
 void STMFLASH_Read(u32 ReadAddr,u16 *pBuffer,u16 NumToRead);   		//´ÓÖ¸¶¨µØÖ·¿ªÊ¼¶Á³öÖ¸¶¨³¤¶ÈµÄÊý¾Ý
-
+FLASH_Status BOOT_ProgramDatatoFlash(uint32_t StartAddress,uint8_t *pData,uint32_t DataNum);
+FLASH_Status BOOT_ErasePage(uint32_t StartPageAddr,uint32_t EndPageAddr);
+void JumpToApplication(uint32_t Addr);
 //²âÊÔÐ´Èë
 void Test_Write(u32 WriteAddr,u16 WriteData);								   
 #endif
