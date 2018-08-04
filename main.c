@@ -100,20 +100,22 @@ int main(int argc, char *argv[])
         case HOST_PREPARE_BIN:
 
             file_payload.payload_len=fops->create(fops,&frame_file);
-            if(file_payload.payload_len){
+            if(frame_file.length<=MAX_FILE_LEN && frame_file.length >0){
                 printf("prepare downding\n");
                 file_payload.type = FILE_FRAME;
-                memcpy(payload.buf,&frame_file,file_payload.payload_len);
-                control->change_status(control,HOST_PREPARE_BIN,HOST_DOWNLOAD_BIN,HOST_CMD_TIMEOUT);
+                memcpy(file_payload.buf,&frame_file,file_payload.payload_len);
+                control->change_status(control,HOST_PREPARE_BIN,HOST_DOWNLOAD_BIN,0);
             }
-            else
+
+            if(file_payload.payload_len==0)
             {
                 printf("bin file transmit finished \n");
-                control->change_status(control,HOST_PREPARE_BIN,HOST_SEND_MOTE_ID,HOST_CMD_TIMEOUT);
+                control->change_status(control,HOST_PREPARE_BIN,HOST_SEND_MOTE_ID,0);
+                break;
             }
 
+            break;
 
-        break;
 
         case HOST_DOWNLOAD_BIN:
             printf("start downding\n");
@@ -143,12 +145,14 @@ int main(int argc, char *argv[])
         break;
 
         case HOST_WAIT_ACK:
+            //good performance
             if(SerialGetChar(&c))
                 usart->read(usart,c);
             //max time out
             if(control->is_max_time_out(control,APP2BOOT_TIMEOUT))
             {
                 SerialClose();
+                fops->close(fops);
                 return 0;
             }
             //if time out change staus to last

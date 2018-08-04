@@ -15,15 +15,11 @@ void set_timer(struct zxy_control *control,long time)
 
 }
 
- int  check_timer(struct zxy_control *control,int max_timeout_cout)
+int check_timer(struct zxy_control *control)
  {
     if(get_sys_time_ms() > control->timer)
     {
         control->timeout_cout++;
-        if(control->timeout_cout>max_timeout_cout && max_timeout_cout>0)
-        {
-            control->timeout_cout=0;
-        }
         return TIMER_TIMEOUT;
     }
     else

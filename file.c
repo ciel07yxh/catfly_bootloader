@@ -46,20 +46,23 @@ uint8_t read_bin_file(struct file_ops *fops,char *filename)
 uint16_t file_create(struct file_ops *fops,frame_file_t *file_frame)
 {
     uint16_t len=MAX_FILE_LEN;
-	
+    uint16_t i;
 
     if( fops->fileIndex*MAX_FILE_LEN > fops->fileSize)
         return 0;
 
     if( (fops->fileIndex+1)*MAX_FILE_LEN > fops->fileSize)
         len = fops->fileSize - fops->fileIndex*MAX_FILE_LEN;
-	fops->fileIndex++;
+
+	printf("len is %d index is %d",len,fops->fileIndex);
     file_frame->Sequence = fops->fileIndex;
     file_frame->length = len;
 
     memcpy(file_frame->buf,fops->buf+fops->fileIndex*MAX_FILE_LEN,len);
+    fops->fileIndex++;
 
-    
+
+
     return sizeof(frame_file_t)+len-MAX_FILE_LEN;
 
 }

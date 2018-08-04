@@ -32,7 +32,6 @@ typedef struct zxy_control
     void (*change_status)(struct zxy_control *control,int current,int next,long time);
     int  (*is_max_time_out)(struct zxy_control *control,int maxTimeOut);
     void (*resume_last_mission)(struct zxy_control *control);
-
 }zxy_control;
 
 extern zxy_control __control;
