@@ -108,7 +108,10 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 						//moteid_frame = (frame_moteid_t *)frame->buf;
 						//TODO write modeid
 						FLASH_Unlock();
-						while(BOOT_ProgramDatatoFlash(MOIEID_ADDR,frame->buf,4)!=FLASH_COMPLETE);
+						while(BOOT_ProgramDatatoFlash(MOIEID_ADDR,frame->buf,4)!=FLASH_COMPLETE){
+								while(BOOT_ErasePage(MOIEID_ADDR,MOIEID_ADDR+SECTOR_SIZE)!=FLASH_COMPLETE ) 
+								;
+						}
 						FLASH_Lock();	
 						flash_ok = 1;
 						ack = SET;

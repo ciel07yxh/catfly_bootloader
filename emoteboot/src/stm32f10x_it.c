@@ -38,19 +38,7 @@
 /*            Cortex-M3 Processor Exceptions Handlers                         */
 /******************************************************************************/
 
-void USART1_IRQHandler(void)                             
-{
 
- char RX_dat;                                                      
-
- if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)    
-	{
-		/*USART_ClearITPendingBit(USART1, USART_IT_RXNE); */      
-    RX_dat=USART_ReceiveData(USART1) & 0x7F;                        
-		USART_SendData(USART1, RX_dat);                                      
-    while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET){}
-   }
-}
 
 
 void USB_LP_CAN1_RX0_IRQHandler(void)
