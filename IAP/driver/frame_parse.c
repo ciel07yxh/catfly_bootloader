@@ -7,9 +7,10 @@
 #define SECTOR_SIZE			2048
 
 
-uint8_t file_buf[SECTOR_SIZE];
+uint8_t file_buf[3000];
 uint32_t app_addr = APP_ADDR;
-uint16_t buf_index=0;
+uint32_t buf_index=0;
+uint32_t flash_offset=0;
 int16_t file_seq=-1;
 uint16_t file_flag;
 uint8_t  flash_ok=0;
@@ -27,9 +28,9 @@ void dateLinkSend(struct zxy_framer *framer,uart_frame_t *frame)
 
 void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 {
-
+		uint16_t i=0;
     uart_frame_t *frame = (uart_frame_t *)buf;
-		frame_moteid_t *moteid_frame;
+//		frame_moteid_t *moteid_frame;
 		frame_file_t  *file_frame;
     //frame->payload_len = len;
     switch(frame->type)
@@ -44,7 +45,7 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 				  
 					FLASH_Unlock();
 					
-					BOOT_ErasePage(APP_EXE_FLAG_START_ADDR,APP_EXE_FLAG_START_ADDR+0xF000);
+					while(BOOT_ErasePage(APP2BOOT_ADDR,APP_EXE_FLAG_START_ADDR+0xF000)!=FLASH_COMPLETE);
 					is_flash=1;
 					FLASH_Lock();	
 					__set_PRIMASK(0);
@@ -54,13 +55,15 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
         case FILE_FRAME:
         //FILE_FRAME_callback
 				file_frame = (frame_file_t *)frame->buf;
-				if(file_frame->Sequence < file_seq)
+				if(file_frame->Sequence <= file_seq)
 					break;
 				
 				ack = SET;
 				if(file_frame->length<=128)
 				{
-					memcpy(file_buf+buf_index,file_frame->buf,file_frame->length);
+					//memcpy(file_buf+buf_index,file_frame->buf,file_frame->length);
+					for(i=0;i<file_frame->length;i++)
+						*(file_buf+buf_index+i) = *(file_frame->buf+i);
 					buf_index+=file_frame->length;
 					file_seq=file_frame->Sequence;
 				}
@@ -69,7 +72,13 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 
 					FLASH_Unlock();
 					is_flash=0;
-					BOOT_ProgramDatatoFlash(app_addr,file_buf,SECTOR_SIZE);
+					
+					while(BOOT_ProgramDatatoFlash(app_addr,file_buf,SECTOR_SIZE)!=FLASH_COMPLETE)
+						{
+							while(BOOT_ErasePage(app_addr,app_addr+SECTOR_SIZE) !=FLASH_COMPLETE )
+								;
+
+						}
 					FLASH_Lock();	
 					app_addr+=SECTOR_SIZE;
 					buf_index=0;
@@ -82,9 +91,12 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 					if(buf_index !=0 )
 					{
 
-
 						FLASH_Unlock();
-						BOOT_ProgramDatatoFlash(app_addr,file_buf,buf_index);
+					while(BOOT_ProgramDatatoFlash(app_addr,file_buf,SECTOR_SIZE)!=FLASH_COMPLETE)
+						{
+							while(BOOT_ErasePage(app_addr,app_addr+SECTOR_SIZE)!=FLASH_COMPLETE ) 
+								;
+						}
 						FLASH_Lock();	
 						
 						app_addr+=buf_index;
@@ -93,8 +105,11 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 					
 					if(sizeof(frame_moteid_t)==frame->payload_len)
 					{
-						moteid_frame = (frame_moteid_t *)frame->buf;
-						//JumpToApplication(APP_ADDR);
+						//moteid_frame = (frame_moteid_t *)frame->buf;
+						//TODO write modeid
+						FLASH_Unlock();
+						while(BOOT_ProgramDatatoFlash(MOIEID_ADDR,frame->buf,4)!=FLASH_COMPLETE);
+						FLASH_Lock();	
 						flash_ok = 1;
 						ack = SET;
 					}

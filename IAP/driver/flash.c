@@ -36,7 +36,7 @@ FLASH_Status BOOT_ProgramDatatoFlash(uint32_t StartAddress,uint8_t *pData,uint32
 
   uint32_t i;
 
-  if(StartAddress<APP_EXE_FLAG_START_ADDR){
+  if(StartAddress<APP2BOOT_ADDR){
     return FLASH_ERROR_PG;
   }
    /* Clear All pending flags */
