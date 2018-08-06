@@ -30,17 +30,17 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
                     //length veify
                     printf("\nMCU enter Bootloader aleady\n");
                     //control->change_status(control,)
-                    control->change_status(control,HOST_DOWNLOAD_BIN,HOST_PREPARE_BIN,0);
+                    control->change_status(control,HOST_DOWNLOAD_BIN,HOST_PREPARE_BIN,100);
                 break;
 
                 case FILE_FRAME:
-                     control->change_status(control,control->last_status,HOST_PREPARE_BIN,0);
+                     control->change_status(control,control->last_status,HOST_PREPARE_BIN,100);
                      printf("\nsend next file frame\n");
                 break;
 
                 case MOTEID_FRAME:
                     printf("\nmote id write success\n");
-                    control->change_status(control,control->last_status,HOST_FINISHED,0);
+                    control->change_status(control,control->last_status,HOST_FINISHED,100);
                 break;
             }
 
