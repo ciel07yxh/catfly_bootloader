@@ -92,14 +92,14 @@ void usartread(struct usart_driver *driver,uint8_t byte)
     if(!driver->escflag && byte == SESC)
     {
         driver->escflag = 1;
-        debug_print("ESC SET\n");
+        //debug_print("ESC SET\n");
         return;
     }
 
     if(!driver->escflag && byte == SSOH)
     {
         driver->receiveLen=0;
-        debug_print("SOH SET\n");
+        //debug_print("SOH SET\n");
         return;
     }
 
@@ -111,10 +111,11 @@ void usartread(struct usart_driver *driver,uint8_t byte)
 
         if(isCrcVailed(driver->rec_buf,driver->receiveLen))
         {
-            for(int i=0;i<driver->receiveLen;i++)
-            printf(" %2x ",*(driver->rec_buf+i));
+            //for(int i=0;i<driver->receiveLen;i++)
+            //printf(" %2x ",*(driver->rec_buf+i));
+            //printf("CRC  vaild\n");
             framer_driver->input(framer_driver,driver->rec_buf,driver->receiveLen-2);
-            printf("CRC  vaild\n");
+
         }
         else
         {
@@ -125,7 +126,7 @@ void usartread(struct usart_driver *driver,uint8_t byte)
         //debug_print("recSucess %d\n",driver->receiveLen);
 
 
-            fflush(stdin);
+            //fflush(stdin);
         return;
     }
 
@@ -133,12 +134,12 @@ void usartread(struct usart_driver *driver,uint8_t byte)
     {
         *(driver->rec_buf+driver->receiveLen++) = byte;
         driver->escflag = 0;
-        printf("rec  esc data\n");
+        //printf("rec  esc data\n");
         return;
     }
 
     *(driver->rec_buf+driver->receiveLen++) = byte;
-        printf("rec  data\n");
+       // printf("rec  data\n");
     return;
 
 }
