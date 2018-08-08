@@ -38,7 +38,27 @@ int check_timer(struct zxy_control *control)
 int is_max_time_out(struct zxy_control *control,int maxTimeOut)
 {
     if(control->timeout_cout>maxTimeOut-1)
-        return 1;
+    {
+
+        switch(control->last_status)
+        {
+
+        case HOST_REQUEST_REBOOT:
+            printf("enter bootloader failed ,please reboot node\n");
+            break;
+
+        case HOST_DOWNLOAD_BIN:
+            printf("serial commuincation failed ,plase try again\n");
+            break;
+
+        case HOST_SEND_MOTE_ID:
+            printf("may be boot to app failed , check app and reboot node\n");
+            break;
+
+        }
+
+     return 1;
+    }
     else
         return 0;
 

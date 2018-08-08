@@ -30,7 +30,7 @@
 #include "usart_driver.h"
 #include "frame_phase.h"
 #include "file.h"
-#define APP2BOOT_TIMEOUT   100
+#define APP2BOOT_TIMEOUT   10
 
 usart_driver *usart = &__usart_driver;
 zxy_framer *datalink = &__framer;
@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
             payload.type=APP2BOOT;
             datalink->send(datalink,&payload);
             //set timer
-            printf("requset downding\n");
-            control->change_status(control,HOST_REQUEST_REBOOT,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
+            //printf("requset downding\n");
+            control->change_status(control,HOST_REQUEST_REBOOT,HOST_WAIT_ACK,HOST_ERASE_TIMEOUT);
 
         break;
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
             file_payload.payload_len=fops->create(fops,&frame_file);
             if(frame_file.length<=MAX_FILE_LEN && frame_file.length >0){
-                printf("prepare downding\n");
+               // printf("prepare downding\n");
                 file_payload.type = FILE_FRAME;
                 memcpy(file_payload.buf,&frame_file,file_payload.payload_len);
                 control->change_status(control,HOST_PREPARE_BIN,HOST_DOWNLOAD_BIN,0);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
             if(file_payload.payload_len==0)
             {
-                printf("bin file transmit finished \n");
+                //printf("bin file transmit finished \n");
                 control->change_status(control,HOST_PREPARE_BIN,HOST_SEND_MOTE_ID,0);
                 break;
             }
@@ -118,27 +118,27 @@ int main(int argc, char *argv[])
 
 
         case HOST_DOWNLOAD_BIN:
-            printf("start downding\n");
+           // printf("start downding\n");
             datalink->send(datalink,&file_payload);
-            control->change_status(control,HOST_DOWNLOAD_BIN,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
+            control->change_status(control,HOST_DOWNLOAD_BIN,HOST_WAIT_ACK,HOST_COMMUNI_TIMEOUT);
         break;
 
 
         case HOST_SEND_MOTE_ID:
-            printf("send mote id \n");
+           // printf("send mote id \n");
             payload.type = MOTEID_FRAME;
             payload.payload_len = sizeof(frame_moteid);
             frame_moteid.moteid = moteid;
             memcpy(payload.buf,&frame_moteid,payload.payload_len);
             datalink->send(datalink,&payload);
 
-            control->change_status(control,HOST_SEND_MOTE_ID,HOST_WAIT_ACK,HOST_CMD_TIMEOUT);
+            control->change_status(control,HOST_SEND_MOTE_ID,HOST_WAIT_ACK,HOST_COMMUNI_TIMEOUT);
 
         break;
 
 
         case HOST_FINISHED:
-            printf("mote flash succeess \n");
+            //printf("mote flash succeess \n");
             SerialClose();
             fops->close(fops);
             return 0;

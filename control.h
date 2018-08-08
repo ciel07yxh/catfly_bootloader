@@ -19,7 +19,8 @@
 
 
 #define HOST_MAX_RETRY              0x03
-#define HOST_CMD_TIMEOUT            1000  //100ms
+#define HOST_ERASE_TIMEOUT          1200
+#define HOST_COMMUNI_TIMEOUT         500
 typedef struct zxy_control
 {
     uint8_t  status;
