@@ -30,7 +30,6 @@ void input(struct zxy_framer *phaser,uint8_t *buf,uint8_t len)
 {
 		uint16_t i=0;
     uart_frame_t *frame = (uart_frame_t *)buf;
-	  uint8_t isProged = 0;
 		frame_file_t  *file_frame;
 		frame_moteid_t *moteid_frame;
 		uint32_t moteid;

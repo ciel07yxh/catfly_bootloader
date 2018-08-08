@@ -503,9 +503,34 @@
               <FilePath>.\src\stm32f10x_it.h</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
+              <FileName>debugSerial.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\usart.c</FilePath>
+              <FilePath>.\src\debugSerial.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>frame_parse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\frame_parse.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\usart_driver.c</FilePath>
             </File>
           </Files>
         </Group>

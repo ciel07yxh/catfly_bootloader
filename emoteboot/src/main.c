@@ -89,6 +89,8 @@ int main(void)
 			memcpy(response.buf,&ack_frame,response.payload_len);
 			framer->send(framer,&response);
 			framer->crcVailed = RESET;
+			ack=0; 
+			
 		}
 		
 		if(flash_ok)
